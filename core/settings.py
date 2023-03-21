@@ -149,3 +149,10 @@ EMAIL_HOST_PASSWORD = config('EMAIL_PASSWORD')
 EMAIL_PORT = config('EMAIL_PORT')
 EMAIL_USE_TLS = config('USE_TLS', cast=bool)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication'
+    ]
+}

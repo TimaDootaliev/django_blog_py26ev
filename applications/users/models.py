@@ -42,4 +42,7 @@ class CustomUser(AbstractBaseUser):
     def has_perm(self, obj=None):
         return self.is_staff
     
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
 
