@@ -1,7 +1,10 @@
 from rest_framework.generics import CreateAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.request import Request
+from rest_framework.views import APIView
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 from .serializers import RegistrationSerializer, ActivationSerializer, LoginSerializer
 
 
@@ -25,3 +28,14 @@ class ActivationView(CreateAPIView):
 
 class LoginView(ObtainAuthToken):
     serializer_class = LoginSerializer
+
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request: Request) -> Response:
+        Token.objects.get(user=request.user).delete()
+        return Response({'message': 'Logged out'})
+    
+# TODO: восстановление пароля
+# TODO: изменение пароля
