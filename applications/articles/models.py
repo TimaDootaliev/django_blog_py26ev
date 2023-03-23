@@ -14,12 +14,12 @@ class Article(models.Model):
 
     title = models.CharField(max_length=100)
     description = models.TextField()
-    image = models.ImageField(upload_to='articles', null=True)
+    image = models.ImageField(upload_to='articles', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='articles')
     tag = models.ManyToManyField("Tag", related_name='articles')
-    status = models.CharField(max_length=6, choices=STATUS_CHOICES)
+    status = models.CharField(max_length=6, choices=STATUS_CHOICES, default='CLOSED')
 
     class Meta:
         verbose_name = 'Статья'
@@ -39,3 +39,32 @@ class Tag(models.Model):
     
     def __str__(self) -> str:
         return self.title
+    
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    # u1 = User.objects.get(id=1)
+    # u1.comments.all()
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+    sub_comment = models.ForeignKey('self', on_delete=models.CASCADE, blank=True)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='comments')
+
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+    
+    def __str__(self) -> str:
+        return f'Комментарий от {self.user.username}'
+
+
+"""  
+1. Написать модель (models.py)
+2. Добавить в админку (admin.py)
+3. Сериализовать ее (serializers.py - нужно создать)
+4. Отобразить во вьюшке (views.py)
+5. Добавить пути (urls.py)
+"""
