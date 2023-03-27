@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Article, Tag
+from .models import Article, Tag, Comment
 
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -12,6 +12,11 @@ class ArticleSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         validated_data['user'] = user
         return super().create(validated_data)
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['comments'] = CommentSerializer(instance.comments.all(), many=True).data
+        return representation
 
 
 class ArticleListSerializer(serializers.ModelSerializer):
@@ -30,10 +35,19 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ['id', 'title']
 
 
-{
-    "title": "Post N2",
-    "description": "Some random description",
-    "tag": [
-        1, 2
-    ]
-}
+class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = Comment
+        fields = ('id', 'user', 'article', 'text', 'created_at', 'updated_at', 'sub_comment')
+    
+
+
+# {
+#     "title": "Post N2",
+#     "description": "Some random description",
+#     "tag": [
+#         1, 2
+#     ]
+# }
