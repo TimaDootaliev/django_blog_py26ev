@@ -1,6 +1,9 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.decorators import action
 from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.request import Request
 from .models import Article, Tag
 from .serializers import ArticleSerializer, ArticleListSerializer, TagSerializer
 from .permissions import IsAuthor
@@ -18,7 +21,7 @@ rest_framework.viewsets - класс для обработки всех опер
 class ArticleViewSet(ModelViewSet):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend, ]
     filterset_fields = ['tag', 'status']
     search_fields = ['title', 'tag__title']
     # permission_classes = [IsAuthenticated]
@@ -35,10 +38,21 @@ class ArticleViewSet(ModelViewSet):
             self.permission_classes = [IsAuthor]
         return super().get_permissions()
     
-    def get_serializer_class(self):
-        if self.action == 'list':
-            return ArticleListSerializer
-        return super().get_serializer_class()
+    # def get_serializer_class(self):
+    #     if self.action == 'list':
+    #         return ArticleListSerializer
+    #     return super().get_serializer_class()
+    
+    @action(methods=['GET', 'POST', 'PATCH', 'DELETE'], detail=True)
+    def comment(self, request: Request, pk=None):
+        post = self.get_object()
+        print(request)
+        print(pk)
+        print(post)
+        
+
+    
+
 
 """
 actions - действия пользователя
