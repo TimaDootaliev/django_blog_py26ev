@@ -3,9 +3,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import action
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.request import Request
-from .models import Article, Tag
-from .serializers import ArticleSerializer, ArticleListSerializer, TagSerializer
+from .models import Article, Tag, Comment
+from .serializers import ArticleSerializer, ArticleListSerializer, TagSerializer, CommentSerializer
 from .permissions import IsAuthor
 
 
@@ -21,7 +20,7 @@ rest_framework.viewsets - класс для обработки всех опер
 class ArticleViewSet(ModelViewSet):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend, ]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     filterset_fields = ['tag', 'status']
     search_fields = ['title', 'tag__title']
     # permission_classes = [IsAuthenticated]
@@ -38,33 +37,41 @@ class ArticleViewSet(ModelViewSet):
             self.permission_classes = [IsAuthor]
         return super().get_permissions()
     
-    # def get_serializer_class(self):
-    #     if self.action == 'list':
-    #         return ArticleListSerializer
-    #     return super().get_serializer_class()
-    
-    @action(methods=['GET', 'POST', 'PATCH', 'DELETE'], detail=True)
-    def comment(self, request: Request, pk=None):
-        post = self.get_object()
-        print(request)
-        print(pk)
-        print(post)
-        
-
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return ArticleListSerializer
+        return super().get_serializer_class()
     
 
+class CommentViewSet(ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    
+    def get_permissions(self):
+        if self.action == 'create':
+            self.permission_classes = [IsAuthenticated]
+        elif self.action in ['update', 'destroy']:
+            self.permission_classes = [IsAuthor]
+        return super().get_permissions()
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({'request': self.request})
+        return context
 
 """
-actions - действия пользователя
+action - действия пользователя
 list
 retrieve
 create
 update  
-delete
+destroy
 """
 
 
 class TagViewSet(ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    # pagination_class = 
+
+
+# TODO: наполнить сайт контентом

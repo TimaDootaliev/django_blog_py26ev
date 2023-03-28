@@ -8,6 +8,11 @@ class ArticleListSerializer(serializers.ListSerializer):
         model = Article
         fields = ('id', 'title', 'tag', 'user')
 
+    def to_representation(self, instance: Article) -> OrderedDict:
+        representation = super().to_representation(instance)
+        representation['tag'] = [tag.title for tag in instance.tag.all()]
+        return representation
+
 
 class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,19 +21,19 @@ class ArticleSerializer(serializers.ModelSerializer):
         read_only_fields = ['user']
         list_serializer_class = ArticleListSerializer
 
+
     def create(self, validated_data):
         user = self.context.get('request').user
         validated_data['user'] = user
         return super().create(validated_data)
-
-
-
-    def to_representation(self, instance: Article) -> OrderedDict:
+    
+    def to_representation(self, instance):
         representation = super().to_representation(instance)
+        representation['comments'] = CommentSerializer(instance.comments.all(), many=True).data
         representation['tag'] = [tag.title for tag in instance.tag.all()]
         return representation
 
-
+    
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
@@ -36,6 +41,18 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
+
     class Meta:
         model = Comment
-        fields = ('id', 'text', 'user', )
+        fields = ('id', 'user', 'article', 'text', 'created_at', 'updated_at', 'sub_comment')
+    
+
+
+# {
+#     "title": "Post N2",
+#     "description": "Some random description",
+#     "tag": [
+#         1, 2
+#     ]
+# }

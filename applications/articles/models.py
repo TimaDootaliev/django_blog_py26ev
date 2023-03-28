@@ -50,7 +50,7 @@ class Comment(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True
     )
-    sub_comment = models.ForeignKey('self', on_delete=models.CASCADE, blank=True)
+    sub_comment = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='comments')
 
     class Meta:
