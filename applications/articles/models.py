@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 # Create your models here.
 User = get_user_model()
@@ -59,6 +60,33 @@ class Comment(models.Model):
     
     def __str__(self) -> str:
         return f'Комментарий от {self.user.username}'
+
+
+class Like(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='likes')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='likes')
+
+    class Meta:
+        verbose_name = 'Лайк'
+        verbose_name_plural = 'Лайки'
+
+    def __str__(self):
+        return f'Liked by {self.user.username}'
+    
+
+class Rating(models.Model):
+    RATES = (
+        (1, '1'),
+        (2, '2'),
+        (3, '3'),
+        (4, '4'),
+        (5, '5'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ratings')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='ratings')
+    rate = models.PositiveSmallIntegerField(choices=RATES)
+    # rate = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
 
 
 """  
