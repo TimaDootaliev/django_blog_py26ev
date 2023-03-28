@@ -8,17 +8,12 @@ class ArticleListSerializer(serializers.ListSerializer):
         model = Article
         fields = ('id', 'title', 'tag', 'user')
 
-    def to_representation(self, instance: Article) -> OrderedDict:
-        representation = super().to_representation(instance)
-        representation['tag'] = [tag.title for tag in instance.tag.all()]
-        return representation
-
 
 class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = '__all__'
-        read_only_fields = ['user']
+        read_only_fields = ['user', 'id']
         list_serializer_class = ArticleListSerializer
 
 
@@ -46,6 +41,7 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('id', 'user', 'article', 'text', 'created_at', 'updated_at', 'sub_comment')
+        read_only_fields = ['article']
     
 
 
