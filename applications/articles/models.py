@@ -88,6 +88,14 @@ class Rating(models.Model):
     rate = models.PositiveSmallIntegerField(choices=RATES)
     # rate = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
 
+    def __str__(self):
+        return str(self.rate)
+
+    class Meta:
+        verbose_name = 'Рейтинг'
+        verbose_name_plural = 'Рейтинги'
+        unique_together = ['user', 'article']
+
 
 """  
 1. Написать модель (models.py)

@@ -4,7 +4,7 @@ from rest_framework import filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from .models import Article, Tag, Comment
-from .serializers import ArticleSerializer, ArticleListSerializer, TagSerializer, CommentSerializer
+from .serializers import ArticleSerializer, ArticleListSerializer, TagSerializer, CommentSerializer, RatingSerializer
 from .permissions import IsAuthor
 
 
@@ -17,6 +17,7 @@ rest_framework.generics - вьюшки на готовых классах
 
 rest_framework.viewsets - класс для обработки всех операций CRUD
 """
+
 class ArticleViewSet(ModelViewSet):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
@@ -42,6 +43,8 @@ class ArticleViewSet(ModelViewSet):
             return ArticleListSerializer
         elif self.action == 'comment':
             return CommentSerializer
+        elif self.action == 'rate_article':
+            return RatingSerializer
         return super().get_serializer_class()
     
     @action(methods=['POST', 'DELETE'], detail=True)
@@ -54,6 +57,14 @@ class ArticleViewSet(ModelViewSet):
             serializer.save(user=request.user, article=article)
             return Response(serializer.data)
         return Response({'TODO': 'ДОБАВИТЬ УДАЛЕНИЕ КОММЕНТА'})
+    
+    @action(methods=['POST'], detail=True, url_path='rate')
+    def rate_article(self, request, pk=None) -> Response:
+        article = self.get_object()
+        serializer = RatingSerializer(data=request.data, context={'request': request, 'article': article})
+        serializer.is_valid(raise_exception=True)
+        serializer.save(article=article)
+        return Response(serializer.data)
 
 
 class CommentViewSet(ModelViewSet):
