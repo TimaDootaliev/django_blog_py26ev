@@ -1,7 +1,9 @@
-from rest_framework.generics import CreateAPIView
+# https://www.django-rest-framework.org/api-guide/views/
+
+from rest_framework.generics import CreateAPIView # https://www.django-rest-framework.org/api-guide/generic-views/
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.request import Request
+from rest_framework.request import Request # https://www.django-rest-framework.org/api-guide/requests/
 from rest_framework.views import APIView
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
